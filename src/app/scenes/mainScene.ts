@@ -27,6 +27,7 @@ export class MainScene extends Phaser.Scene {
     height: 6,
   };
   private tileSize: number;
+  private replayingActions: boolean = false;
 
   public constructor() {
     super({
@@ -114,21 +115,27 @@ export class MainScene extends Phaser.Scene {
       this.pawnSprites.add(pawnSprite, true);
     });
 
-    this.input.on("pointerup", (_pointer: Phaser.Input.Pointer): void => {
-      const pointerDownPos: Phaser.Math.Vector2 = this.cameras.main.getWorldPoint(
-        _pointer.downX,
-        _pointer.downY
-      );
-      const pointerUpPos: Phaser.Math.Vector2 = this.cameras.main.getWorldPoint(
-        _pointer.upX,
-        _pointer.upY
-      );
-      const pointerMove: Phaser.Math.Vector2 = pointerUpPos
-        .clone()
-        .subtract(pointerDownPos);
-      const dir: Phaser.Math.Vector2 = this.getDir(pointerMove);
-      this.step(pointerDownPos, dir);
-    });
+    this.input.on(
+      "pointerup",
+      (_pointer: Phaser.Input.Pointer): void => {
+        if (!this.replayingActions) {
+          const pointerDownPos: Phaser.Math.Vector2 = this.cameras.main.getWorldPoint(
+            _pointer.downX,
+            _pointer.downY
+          );
+          const pointerUpPos: Phaser.Math.Vector2 = this.cameras.main.getWorldPoint(
+            _pointer.upX,
+            _pointer.upY
+          );
+          const pointerMove: Phaser.Math.Vector2 = pointerUpPos
+            .clone()
+            .subtract(pointerDownPos);
+          const dir: Phaser.Math.Vector2 = this.getDir(pointerMove);
+          this.step(pointerDownPos, dir);
+        }
+      },
+      this
+    );
   }
 
   public getDir(move: Phaser.Math.Vector2): Phaser.Math.Vector2 {
@@ -176,28 +183,34 @@ export class MainScene extends Phaser.Scene {
   }
 
   private replayActions(actions: Array<Action>): void {
+    this.replayingActions = true;
     let currentActionIdx: number = 0;
     const timeStep: number = 300;
     this.time.addEvent({
       delay: timeStep,
       startAt: timeStep,
       callbackScope: this,
-      repeat: actions.length - 1,
+      repeat: actions.length,
       callback: (): void => {
-        const action: Action = actions[currentActionIdx];
-        switch (action.type) {
-          case ActionType.MOVE: {
-            action.fromPawnSprite.move(action, timeStep);
-            break;
+        if (currentActionIdx < actions.length) {
+          const action: Action = actions[currentActionIdx];
+          switch (action.type) {
+            case ActionType.MOVE: {
+              action.fromPawnSprite.move(action, timeStep);
+              break;
+            }
+            case ActionType.ATTACK: {
+              action.fromPawnSprite.attack(action, timeStep);
+              break;
+            }
+            case ActionType.PAWN_DESTROYED: {
+              action.targetPawnSprite.destroy();
+              break;
+            }
           }
-          case ActionType.ATTACK: {
-            action.fromPawnSprite.attack(action, timeStep);
-            break;
-          }
-          case ActionType.PAWN_DESTROYED: {
-            action.targetPawnSprite.destroy();
-            break;
-          }
+        }
+        if (currentActionIdx >= actions.length) {
+          this.replayingActions = false;
         }
         currentActionIdx += 1;
       },
