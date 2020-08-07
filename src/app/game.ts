@@ -11,9 +11,6 @@ export const run = (): void => {
     height: 500,
     backgroundColor: "#DDD",
     parent: "game",
-    physics: {
-      default: "arcade",
-    },
     // @ts-ignore
     pixelArt: true,
     scene: scenes,

@@ -1,16 +1,66 @@
 import * as Phaser from "phaser";
 
+import * as playerPawnImage from "../../assets/playerPawn.png";
+import * as enemyPawnImage from "../../assets/enemyPawn.png";
+import * as obstacleCellImage from "../../assets/obstacleCell.png";
+import * as emptyCellImage from "../../assets/emptyCell.png";
+
+import { PawnSprite } from "../pawnSprites/pawnSprite";
+import { Pawn } from "../pawns/pawn";
+import { Grid } from "../grid/grid";
+import { LevelSetup } from "../grid/levelSetupType";
+import { CellType } from "../grid/cellType";
+import { Soldier } from "../pawns/soldier";
+import { Faction } from "../pawns/factionEnum";
+import { Action } from "../actions/actionInterface";
+import { PlayerPawn } from "../pawns/playerPawn";
+import { Warrior } from "../pawns/warrior";
+import { ActionType } from "../actions/actionTypeEnum";
+
 export class MainScene extends Phaser.Scene {
+  private pawnSprites: Phaser.GameObjects.Group;
+  private grid: Grid;
+  private sizeMap: any = {
+    width: 10,
+    height: 6,
+  };
+  private tileSize: number;
+
   public constructor() {
-    super(
-      {
-        key: "WorldScene",
-      }
-    );
+    super({
+      key: "WorldScene",
+    });
+
+    const levelSetup: LevelSetup = new Array(this.sizeMap.width)
+      .fill(undefined)
+      .map(
+        (value1: any, i: number): Array<CellType> =>
+          new Array(this.sizeMap.height)
+            .fill(undefined)
+            .map(
+              (value2: any, j: number): CellType =>
+                i === 0 ||
+                i === this.sizeMap.width - 1 ||
+                j === 0 ||
+                j === this.sizeMap.height - 1
+                  ? CellType.OBSTACLE
+                  : CellType.EMPTY
+            )
+      );
+    const pawns: Array<Pawn> = [
+      new Soldier(new Phaser.Math.Vector2(3, 1)),
+      new Warrior(new Phaser.Math.Vector2(5, 4)),
+    ];
+    this.grid = new Grid(levelSetup, pawns);
   }
 
   // tslint:disable-next-line: no-empty
-  public preload(): void {}
+  public preload(): void {
+    this.load.image("playerPawn", playerPawnImage.default);
+    this.load.image("enemyPawn", enemyPawnImage.default);
+    this.load.image("obstacleCell", obstacleCellImage.default);
+    this.load.image("emptyCell", emptyCellImage.default);
+  }
 
   public create(): void {
     // Disables right click
@@ -18,20 +68,131 @@ export class MainScene extends Phaser.Scene {
       e.preventDefault();
     };
 
+    this.pawnSprites = this.add.group();
+
     /**
      * Places the camera centered to the origin (default is left upper corner is
      * at origin)
      */
+    this.cameras.main.setZoom(2);
     this.cameras.main.centerOn(0, 0);
+
+    this.tileSize = this.textures.get("emptyCell").get(0).width;
+
+    this.grid.levelSetup.forEach((column: Array<CellType>, i: number): void => {
+      column.forEach((cellType: CellType, j: number): void => {
+        let texture: string;
+        switch (cellType) {
+          case CellType.OBSTACLE: {
+            texture = "obstacleCell";
+            break;
+          }
+          case CellType.EMPTY: {
+            texture = "emptyCell";
+            break;
+          }
+        }
+        this.add.image(
+          (i - this.sizeMap.width / 2 + 0.5) * this.tileSize,
+          (j - this.sizeMap.height / 2 + 0.5) * this.tileSize,
+          texture
+        );
+      });
+    });
+
+    this.grid.getPawns().forEach((pawn: Pawn): void => {
+      const pawnPos: Phaser.Math.Vector2 = this.gridPosToWorldPos(pawn.pos);
+      const pawnSprite: PawnSprite = pawn.createPawnSprite(
+        this,
+        pawnPos.x,
+        pawnPos.y
+      );
+      this.pawnSprites.add(pawnSprite, true);
+    });
+
+    this.input.on("pointerup", (_pointer: Phaser.Input.Pointer): void => {
+      const pointerDownPos: Phaser.Math.Vector2 = this.cameras.main.getWorldPoint(
+        _pointer.downX,
+        _pointer.downY
+      );
+      const pointerUpPos: Phaser.Math.Vector2 = this.cameras.main.getWorldPoint(
+        _pointer.upX,
+        _pointer.upY
+      );
+      const pointerMove: Phaser.Math.Vector2 = pointerUpPos
+        .clone()
+        .subtract(pointerDownPos);
+      const dir: Phaser.Math.Vector2 = this.getDir(pointerMove);
+      this.step(pointerDownPos, dir);
+    });
   }
 
-  /**
-   * This method is called once per game step while the scene is running.
-   * Handles the realtime updates.
-   * @param {number} time - The current time
-   * @param {number} delta - The delta time in ms since the last frame. This is
-   * a smoothed and capped value based on the FPS rate.
-   */
-  // tslint:disable-next-line: no-empty
-  public update(time: number, delta: number): void {}
+  public getDir(move: Phaser.Math.Vector2): Phaser.Math.Vector2 {
+    if (move.length() > 5) {
+      if (move.angle() < Math.PI / 4 || move.angle() >= (7 * Math.PI) / 4) {
+        return new Phaser.Math.Vector2(1, 0);
+      } else if (move.angle() < (3 * Math.PI) / 4) {
+        return new Phaser.Math.Vector2(0, 1);
+      } else if (move.angle() < (5 * Math.PI) / 4) {
+        return new Phaser.Math.Vector2(-1, 0);
+      } else {
+        return new Phaser.Math.Vector2(0, -1);
+      }
+    } else {
+      return new Phaser.Math.Vector2(0, 0);
+    }
+  }
+
+  public gridPosToWorldPos(gridPos: Phaser.Math.Vector2): Phaser.Math.Vector2 {
+    return new Phaser.Math.Vector2(
+      (gridPos.x - this.sizeMap.width / 2 + 0.5) * this.tileSize,
+      (gridPos.y - this.sizeMap.height / 2 + 0.5) * this.tileSize
+    );
+  }
+
+  public worldPosToGridPos(worldPos: Phaser.Math.Vector2): Phaser.Math.Vector2 {
+    return new Phaser.Math.Vector2(
+      Math.floor(worldPos.x / this.tileSize + this.sizeMap.width / 2),
+      Math.floor(worldPos.y / this.tileSize + this.sizeMap.height / 2)
+    );
+  }
+
+  private step(mousePos: Phaser.Math.Vector2, dir: Phaser.Math.Vector2): void {
+    const newGrid: Grid = this.grid.copy();
+
+    const gridPos: Phaser.Math.Vector2 = this.worldPosToGridPos(mousePos);
+    const pawn: Pawn = newGrid.getCell(gridPos);
+
+    if (pawn && pawn.faction === Faction.PLAYER) {
+      const actions: Array<Action> = (pawn as PlayerPawn).action(gridPos, dir);
+      this.replayActions(actions);
+    }
+
+    this.grid = newGrid;
+  }
+
+  private replayActions(actions: Array<Action>): void {
+    let currentActionIdx: number = 0;
+    const timeStep: number = 300;
+    this.time.addEvent({
+      delay: timeStep,
+      startAt: timeStep,
+      callbackScope: this,
+      repeat: actions.length - 1,
+      callback: (): void => {
+        const action: Action = actions[currentActionIdx];
+        switch (action.type) {
+          case ActionType.MOVE: {
+            action.fromPawnSprite.move(action, timeStep);
+            break;
+          }
+          case ActionType.ATTACK: {
+            action.fromPawnSprite.attack(action, timeStep);
+            break;
+          }
+        }
+        currentActionIdx += 1;
+      },
+    });
+  }
 }
