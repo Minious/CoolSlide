@@ -4,6 +4,8 @@ import * as playerPawnImage from "../../assets/playerPawn.png";
 import * as enemyPawnImage from "../../assets/enemyPawn.png";
 import * as obstacleCellImage from "../../assets/obstacleCell.png";
 import * as emptyCellImage from "../../assets/emptyCell.png";
+import * as fullHeartImage from "../../assets/fullHeart.png";
+import * as emptyHeartImage from "../../assets/emptyHeart.png";
 
 import { PawnSprite } from "../pawnSprites/pawnSprite";
 import { Pawn } from "../pawns/pawn";
@@ -60,6 +62,8 @@ export class MainScene extends Phaser.Scene {
     this.load.image("enemyPawn", enemyPawnImage.default);
     this.load.image("obstacleCell", obstacleCellImage.default);
     this.load.image("emptyCell", emptyCellImage.default);
+    this.load.image("fullHeart", fullHeartImage.default);
+    this.load.image("emptyHeart", emptyHeartImage.default);
   }
 
   public create(): void {
@@ -188,6 +192,10 @@ export class MainScene extends Phaser.Scene {
           }
           case ActionType.ATTACK: {
             action.fromPawnSprite.attack(action, timeStep);
+            break;
+          }
+          case ActionType.PAWN_DESTROYED: {
+            action.targetPawnSprite.destroy();
             break;
           }
         }

@@ -6,8 +6,11 @@ import { EnemyPawn } from "./enemyPawn";
 import { WarriorSprite } from "../pawnSprites/warriorSprite";
 
 export class Warrior extends EnemyPawn {
+  public static MAX_LIFE: number = 2;
+  public static ATTACK: number = 1;
+
   public constructor(pos: Phaser.Math.Vector2) {
-    super(pos, 2, 1);
+    super(pos, Warrior.MAX_LIFE, Warrior.ATTACK);
   }
 
   public react(
@@ -24,10 +27,7 @@ export class Warrior extends EnemyPawn {
       playerPawn &&
       this._grid.isPawnAlive(playerPawn)
     ) {
-      playerPawn.life -= this.attack;
-      if (playerPawn.life <= 0) {
-        this._grid.destroyPawn(playerPawn);
-      }
+      playerPawn.changeLife(-this.attack);
       actions.push({
         type: ActionType.ATTACK,
         from: this.pos.clone(),
@@ -35,7 +35,17 @@ export class Warrior extends EnemyPawn {
         fromPawnSprite: this.pawnSprite,
         targetPawnSprite: playerPawn.pawnSprite,
         attackingFaction: this.faction,
+        targetPawnNewLife: playerPawn.life,
       });
+
+      if (playerPawn.life <= 0) {
+        this._grid.destroyPawn(playerPawn);
+
+        actions.push({
+          type: ActionType.PAWN_DESTROYED,
+          targetPawnSprite: playerPawn.pawnSprite,
+        });
+      }
     }
 
     return actions;

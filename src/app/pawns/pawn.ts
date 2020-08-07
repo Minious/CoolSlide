@@ -47,10 +47,6 @@ export abstract class Pawn {
     return this._pawnSprite;
   }
 
-  public set pawnSprite(pawnSprite: PawnSprite) {
-    this._pawnSprite = pawnSprite;
-  }
-
   public get faction(): Faction {
     return this._faction;
   }
@@ -59,12 +55,16 @@ export abstract class Pawn {
     return this._attack;
   }
 
+  public get life(): number {
+    return this._life;
+  }
+
   public set grid(grid: Grid) {
     this._grid = grid;
   }
 
-  public set life(life: number) {
-    this._life = Math.max(0, life);
+  public changeLife(lifeChange: number): void {
+    this._life = Math.max(0, this._life + lifeChange);
   }
 
   public resetPos(): void {
@@ -82,8 +82,8 @@ export abstract class Pawn {
 
   public clone(): Pawn {
     const pawnClone: Pawn = this._clone();
-    pawnClone.pawnSprite = this.pawnSprite;
-    pawnClone.life = this.life;
+    pawnClone._pawnSprite = this._pawnSprite;
+    pawnClone._life = this._life;
     return pawnClone;
   }
 

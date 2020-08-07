@@ -8,8 +8,11 @@ import { PlayerPawn } from "./playerPawn";
 import { EnemyPawn } from "./enemyPawn";
 
 export class Soldier extends PlayerPawn {
+  public static MAX_LIFE: number = 3;
+  public static ATTACK: number = 1;
+
   public constructor(pos: Phaser.Math.Vector2) {
-    super(pos, 3, 1);
+    super(pos, Soldier.MAX_LIFE, Soldier.ATTACK);
   }
 
   public action(
@@ -51,7 +54,7 @@ export class Soldier extends PlayerPawn {
     if (this._grid.isPawnAlive(this)) {
       const nextCell: Pawn = this._grid.getCell(to);
       if (nextCell && nextCell.faction === Faction.ENEMY) {
-        nextCell.life -= this.attack;
+        nextCell.changeLife(-this.attack);
         enemyPawnsHit.push(nextCell);
         actions.push({
           type: ActionType.ATTACK,
@@ -61,10 +64,16 @@ export class Soldier extends PlayerPawn {
           fromPawnSprite: this.pawnSprite,
           targetPawnSprite: nextCell.pawnSprite,
           attackingFaction: this.faction,
+          targetPawnNewLife: nextCell.life,
         });
 
         if (nextCell.life <= 0) {
           this._grid.destroyPawn(nextCell);
+
+          actions.push({
+            type: ActionType.PAWN_DESTROYED,
+            targetPawnSprite: nextCell.pawnSprite,
+          });
         }
 
         this._grid.getEnemyPawns().forEach((pawn: EnemyPawn): void => {

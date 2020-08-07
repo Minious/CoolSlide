@@ -1,14 +1,46 @@
 import { MainScene } from "../scenes/mainScene";
 import { Action } from "../actions/actionInterface";
 
-export class PawnSprite extends Phaser.GameObjects.Image {
+export class PawnSprite extends Phaser.GameObjects.Container {
+  private maxLife: number;
+  private heartsContainer: Phaser.GameObjects.Container;
+
   public constructor(
     scene: Phaser.Scene,
     x: number,
     y: number,
-    texture: string
+    texture: string,
+    maxLife: number
   ) {
-    super(scene, x, y, texture);
+    super(scene, x, y);
+
+    this.maxLife = maxLife;
+
+    const pawnSprite: Phaser.GameObjects.Image = this.scene.add.image(
+      0,
+      0,
+      texture
+    );
+    this.add(pawnSprite);
+
+    const heartsSize: number = this.scene.textures.get("fullHeart").get(0)
+      .width;
+    const heartsXMargin: number = 1;
+    const heartsYOffset: number = -13;
+    const heartsTotalWidth: number =
+      this.maxLife * heartsSize + (this.maxLife - 1) * heartsXMargin;
+    const heartsX0: number = -heartsTotalWidth / 2 + heartsSize / 2;
+
+    this.heartsContainer = this.scene.add.container(0, heartsYOffset);
+    this.add(this.heartsContainer);
+    for (let i: number = 0; i < this.maxLife; i += 1) {
+      const heartSprite: Phaser.GameObjects.Image = this.scene.add.image(
+        heartsX0 + i * (heartsSize + heartsXMargin),
+        0,
+        "fullHeart"
+      );
+      this.heartsContainer.add(heartSprite);
+    }
   }
 
   public attack(action: Action, timeStep: number): void {
@@ -23,6 +55,8 @@ export class PawnSprite extends Phaser.GameObjects.Image {
       y: midPos.y,
       yoyo: true,
       duration: timeStep / 2,
+      onYoyo: (): void =>
+        action.targetPawnSprite.updateLife(action.targetPawnNewLife),
     });
   }
 
@@ -35,5 +69,19 @@ export class PawnSprite extends Phaser.GameObjects.Image {
       y: destPos.y,
       duration: timeStep,
     });
+  }
+
+  public updateLife(newLife: number): void {
+    const heartSprites: Array<Phaser.GameObjects.Image> = this.heartsContainer.getAll() as Array<
+      Phaser.GameObjects.Image
+    >;
+
+    heartSprites.forEach(
+      (heartSprite: Phaser.GameObjects.Image, i: number): void => {
+        if (i >= newLife) {
+          heartSprite.setTexture("emptyHeart");
+        }
+      }
+    );
   }
 }
