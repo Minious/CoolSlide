@@ -21,11 +21,9 @@ import { Action } from "../actions/actionInterface";
 import { PlayerPawn } from "../pawns/playerPawn";
 import { Warrior } from "../pawns/warrior";
 import { ActionType } from "../actions/actionTypeEnum";
+import { ActionsPreview } from "../actions/actionsPreview";
 
 export class MainScene extends Phaser.Scene {
-  private static ACTION_REPLAY_BLINK_TIMESTEP: number = 140;
-  private static ACTION_REPLAY_BLINK_OPACITY: number = 0.5;
-
   private pawnSprites: Phaser.GameObjects.Group;
   private grid: Grid;
   private sizeMap: any = {
@@ -35,8 +33,7 @@ export class MainScene extends Phaser.Scene {
   private tileSize: number;
   private replayingActions: boolean = false;
   private lastPreviewDir: Phaser.Math.Vector2;
-  private actionsPreviewGroup: Phaser.GameObjects.Group;
-  private previewActionsBlinkTimedEffect: Phaser.Time.TimerEvent;
+  private actionsPreview: ActionsPreview;
 
   public constructor() {
     super({
@@ -86,7 +83,7 @@ export class MainScene extends Phaser.Scene {
     };
 
     this.pawnSprites = this.add.group();
-    this.actionsPreviewGroup = this.add.group();
+    this.actionsPreview = new ActionsPreview(this);
 
     /**
      * Places the camera centered to the origin (default is left upper corner is
@@ -163,7 +160,7 @@ export class MainScene extends Phaser.Scene {
       "pointerup",
       (_pointer: Phaser.Input.Pointer): void => {
         this.lastPreviewDir = undefined;
-        this.clearActionsPreview();
+        this.actionsPreview.clearActionsPreview();
         if (!this.replayingActions) {
           const pointerDownPos: Phaser.Math.Vector2 = this.cameras.main.getWorldPoint(
             _pointer.downX,
@@ -214,18 +211,11 @@ export class MainScene extends Phaser.Scene {
     );
   }
 
-  private clearActionsPreview(): void {
-    if (this.previewActionsBlinkTimedEffect) {
-      this.previewActionsBlinkTimedEffect.remove(false);
-    }
-    this.actionsPreviewGroup.clear(true, true);
-  }
-
   private previewActions(
     mousePos: Phaser.Math.Vector2,
     dir: Phaser.Math.Vector2
   ): void {
-    this.clearActionsPreview();
+    this.actionsPreview.clearActionsPreview();
 
     const newGrid: Grid = this.grid.copy();
 
@@ -234,98 +224,8 @@ export class MainScene extends Phaser.Scene {
 
     if (pawn && pawn.faction === Faction.PLAYER) {
       const actions: Array<Action> = (pawn as PlayerPawn).action(gridPos, dir);
-      actions.forEach((action: Action): void => {
-        this.previewAction(action);
-      });
 
-      let idx: number = 0;
-      this.previewActionsBlinkTimedEffect = this.time.addEvent({
-        delay: MainScene.ACTION_REPLAY_BLINK_TIMESTEP,
-        startAt: MainScene.ACTION_REPLAY_BLINK_TIMESTEP,
-        callbackScope: this,
-        loop: true,
-        callback: (): void => {
-          this.tweens.add({
-            targets: this.actionsPreviewGroup.getChildren()[
-              idx % this.actionsPreviewGroup.getLength()
-            ],
-            alpha: {
-              getEnd: (): number => {
-                return 1;
-              },
-
-              getStart: (): number => {
-                return MainScene.ACTION_REPLAY_BLINK_OPACITY;
-              },
-            },
-            duration: MainScene.ACTION_REPLAY_BLINK_TIMESTEP / 2,
-            yoyo: true,
-          });
-          idx += 1;
-        },
-      });
-    }
-  }
-
-  private previewAction(action: Action): void {
-    let fromWorldPos: Phaser.Math.Vector2;
-    let toWorldPos: Phaser.Math.Vector2;
-    let midPoint: Phaser.Math.Vector2;
-    let dir: Phaser.Math.Vector2;
-    if (action.from) {
-      fromWorldPos = this.gridPosToWorldPos(action.from);
-    }
-    if (action.to) {
-      toWorldPos = this.gridPosToWorldPos(action.to);
-    }
-    if (action.from && action.to) {
-      midPoint = fromWorldPos.clone().lerp(toWorldPos, 0.2);
-      dir = action.to.clone().subtract(action.from);
-    }
-    switch (action.type) {
-      case ActionType.MOVE: {
-        const actionImage: Phaser.GameObjects.Image = this.add.image(
-          midPoint.x,
-          midPoint.y,
-          "moveIcon"
-        );
-        actionImage.setRotation(dir.angle());
-        actionImage.setAlpha(MainScene.ACTION_REPLAY_BLINK_OPACITY);
-        this.actionsPreviewGroup.add(actionImage);
-        break;
-      }
-      case ActionType.ATTACK: {
-        const actionContainer: Phaser.GameObjects.Container = this.add.container(
-          midPoint.x,
-          midPoint.y
-        );
-        const actionImage: Phaser.GameObjects.Image = this.add.image(
-          0,
-          0,
-          "attackIcon"
-        );
-        actionImage.setRotation(dir.angle());
-        actionImage.setAlpha(MainScene.ACTION_REPLAY_BLINK_OPACITY);
-        actionContainer.add(actionImage);
-
-        const damagesText: Phaser.GameObjects.Text = this.add
-          .text(0, 0, action.damages.toString())
-          .setOrigin(0.5, 0.4);
-        actionContainer.add(damagesText);
-
-        this.actionsPreviewGroup.add(actionContainer);
-        break;
-      }
-      case ActionType.PAWN_DESTROYED: {
-        const actionImage: Phaser.GameObjects.Image = this.add.image(
-          fromWorldPos.x,
-          fromWorldPos.y,
-          "deathIcon"
-        );
-        actionImage.setAlpha(MainScene.ACTION_REPLAY_BLINK_OPACITY);
-        this.actionsPreviewGroup.add(actionImage);
-        break;
-      }
+      this.actionsPreview.previewActions(actions);
     }
   }
 
