@@ -2,6 +2,7 @@ import * as Phaser from "phaser";
 
 import * as playerPawnImage from "../../assets/playerPawn.png";
 import * as grapplingPawnImage from "../../assets/grapplingPawn.png";
+import * as assassinPawnImage from "../../assets/assassinPawn.png";
 import * as enemyPawnImage from "../../assets/enemyPawn.png";
 import * as archerPawnImage from "../../assets/archerPawn.png";
 import * as obstacleCellImage from "../../assets/obstacleCell.png";
@@ -10,6 +11,7 @@ import * as fullHeartImage from "../../assets/fullHeart.png";
 import * as emptyHeartImage from "../../assets/emptyHeart.png";
 import * as moveIconImage from "../../assets/moveIcon.png";
 import * as attackIconImage from "../../assets/attackIcon.png";
+import * as attackAssassinIconImage from "../../assets/attackAssassinIcon.png";
 import * as deathIconImage from "../../assets/deathIcon.png";
 
 import { PawnSprite } from "../pawnSprites/pawnSprite";
@@ -26,6 +28,8 @@ import { ActionType } from "../actions/actionTypeEnum";
 import { ActionsPreview } from "../actions/actionsPreview";
 import { Archer } from "../pawns/archer";
 import { Grappling } from "../pawns/grappling";
+import { AssassinSprite } from "../pawnSprites/assassinSprite";
+import { Assassin } from "../pawns/assassin";
 
 export class MainScene extends Phaser.Scene {
   private pawnSprites: Phaser.GameObjects.Group;
@@ -65,6 +69,7 @@ export class MainScene extends Phaser.Scene {
       new Archer(new Phaser.Math.Vector2(5, 1)),
       new Warrior(new Phaser.Math.Vector2(5, 4)),
       new Grappling(new Phaser.Math.Vector2(1, 4)),
+      new Assassin(new Phaser.Math.Vector2(3, 4)),
     ];
     this.grid = new Grid(levelSetup, pawns);
   }
@@ -73,6 +78,7 @@ export class MainScene extends Phaser.Scene {
   public preload(): void {
     this.load.image("playerPawn", playerPawnImage.default);
     this.load.image("grapplingPawn", grapplingPawnImage.default);
+    this.load.image("assassinPawn", assassinPawnImage.default);
     this.load.image("enemyPawn", enemyPawnImage.default);
     this.load.image("archerPawn", archerPawnImage.default);
     this.load.image("obstacleCell", obstacleCellImage.default);
@@ -81,6 +87,7 @@ export class MainScene extends Phaser.Scene {
     this.load.image("emptyHeart", emptyHeartImage.default);
     this.load.image("moveIcon", moveIconImage.default);
     this.load.image("attackIcon", attackIconImage.default);
+    this.load.image("attackAssassinIcon", attackAssassinIconImage.default);
     this.load.image("deathIcon", deathIconImage.default);
   }
 
@@ -270,6 +277,13 @@ export class MainScene extends Phaser.Scene {
             }
             case ActionType.ATTACK: {
               action.fromPawnSprite.attack(action, timeStep);
+              break;
+            }
+            case ActionType.ATTACK_ASSASSIN: {
+              (action.fromPawnSprite as AssassinSprite).attackAssassin(
+                action,
+                timeStep
+              );
               break;
             }
             case ActionType.PAWN_DESTROYED: {

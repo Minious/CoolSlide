@@ -9,17 +9,13 @@ export abstract class Pawn {
   private static nextId: number = 0;
 
   protected _grid: Grid;
-
-  // @ts-ignore
-  private _id: number;
-  private _pos: Phaser.Math.Vector2;
-  private _faction: Faction;
-  // @ts-ignore
-  private _maxLife: number;
-  // @ts-ignore
-  private _life: number;
-  private _attackDamages: number;
-  private _pawnSprite: PawnSprite;
+  protected _id: number;
+  protected _pos: Phaser.Math.Vector2;
+  protected _faction: Faction;
+  protected _maxLife: number;
+  protected _life: number;
+  protected _attackDamages: number;
+  protected _pawnSprite: PawnSprite;
 
   public constructor(
     pos: Phaser.Math.Vector2,

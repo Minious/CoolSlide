@@ -99,6 +99,28 @@ export class ActionsPreview extends Phaser.GameObjects.Group {
         this.add(actionContainer);
         break;
       }
+      case ActionType.ATTACK_ASSASSIN: {
+        const actionContainer: Phaser.GameObjects.Container = this.scene.add.container(
+          midPoint.x,
+          midPoint.y
+        );
+        const actionImage: Phaser.GameObjects.Image = this.scene.add.image(
+          0,
+          0,
+          "attackAssassinIcon"
+        );
+        actionImage.setRotation(dir.angle());
+        actionImage.setAlpha(ActionsPreview.ACTION_REPLAY_BLINK_OPACITY);
+        actionContainer.add(actionImage);
+
+        const damagesText: Phaser.GameObjects.Text = this.scene.add
+          .text(0, 0, action.damages.toString())
+          .setOrigin(0.5, 0.4);
+        actionContainer.add(damagesText);
+
+        this.add(actionContainer);
+        break;
+      }
       case ActionType.PAWN_DESTROYED: {
         const actionImage: Phaser.GameObjects.Image = this.scene.add.image(
           fromWorldPos.x,
