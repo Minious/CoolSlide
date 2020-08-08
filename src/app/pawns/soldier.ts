@@ -65,6 +65,7 @@ export class Soldier extends PlayerPawn {
           targetPawnSprite: nextCell.pawnSprite,
           attackingFaction: this.faction,
           targetPawnNewLife: nextCell.life,
+          damages: this.attack,
         });
 
         if (nextCell.life <= 0) {
@@ -72,6 +73,7 @@ export class Soldier extends PlayerPawn {
 
           actions.push({
             type: ActionType.PAWN_DESTROYED,
+            from: to.clone(),
             targetPawnSprite: nextCell.pawnSprite,
           });
         }

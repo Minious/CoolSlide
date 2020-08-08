@@ -36,6 +36,7 @@ export class Warrior extends EnemyPawn {
         targetPawnSprite: playerPawn.pawnSprite,
         attackingFaction: this.faction,
         targetPawnNewLife: playerPawn.life,
+        damages: this.attack,
       });
 
       if (playerPawn.life <= 0) {
@@ -43,6 +44,7 @@ export class Warrior extends EnemyPawn {
 
         actions.push({
           type: ActionType.PAWN_DESTROYED,
+          from: to.clone(),
           targetPawnSprite: playerPawn.pawnSprite,
         });
       }

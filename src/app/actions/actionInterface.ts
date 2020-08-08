@@ -11,4 +11,5 @@ export interface Action {
   target?: Phaser.Math.Vector2;
   attackingFaction?: Faction;
   targetPawnNewLife?: number;
+  damages?: number;
 }

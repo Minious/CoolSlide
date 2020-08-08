@@ -1,4 +1,4 @@
 export enum Faction {
-  PLAYER,
-  ENEMY,
+  PLAYER = "Player",
+  ENEMY = "Enemy",
 }
