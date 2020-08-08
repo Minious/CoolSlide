@@ -1,4 +1,4 @@
-import { MainScene } from "../scenes/mainScene";
+import { LevelScene } from "../levels/levelScene";
 import { Action } from "../actions/actionInterface";
 
 export class PawnSprite extends Phaser.GameObjects.Container {
@@ -45,9 +45,9 @@ export class PawnSprite extends Phaser.GameObjects.Container {
 
   public attack(action: Action, timeStep: number): void {
     const fromPos: Phaser.Math.Vector2 = (this
-      .scene as MainScene).gridPosToWorldPos(action.from);
+      .scene as LevelScene).gridPosToWorldPos(action.from);
     const destPos: Phaser.Math.Vector2 = (this
-      .scene as MainScene).gridPosToWorldPos(action.to);
+      .scene as LevelScene).gridPosToWorldPos(action.to);
     const midPos: Phaser.Math.Vector2 = destPos.clone().lerp(fromPos, 0.5);
     this.scene.tweens.add({
       targets: this,
@@ -63,7 +63,7 @@ export class PawnSprite extends Phaser.GameObjects.Container {
 
   public move(action: Action, timeStep: number): void {
     const destPos: Phaser.Math.Vector2 = (this
-      .scene as MainScene).gridPosToWorldPos(action.to);
+      .scene as LevelScene).gridPosToWorldPos(action.to);
     this.scene.tweens.add({
       targets: action.fromPawnSprite,
       x: destPos.x,

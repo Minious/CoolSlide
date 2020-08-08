@@ -1,9 +1,9 @@
 import * as Phaser from "phaser";
 
-import { MainScene } from "./scenes/mainScene";
+import { Level001 } from "./levels/level001";
 
 export const run = (): void => {
-  const scenes: Array<typeof Phaser.Scene> = [MainScene];
+  const scenes: Array<typeof Phaser.Scene> = [Level001];
 
   const config: Phaser.Types.Core.GameConfig = {
     type: Phaser.AUTO,

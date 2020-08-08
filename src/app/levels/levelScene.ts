@@ -19,58 +19,26 @@ import { Pawn } from "../pawns/pawn";
 import { Grid } from "../grid/grid";
 import { LevelSetup } from "../grid/levelSetupType";
 import { CellType } from "../grid/cellType";
-import { Soldier } from "../pawns/soldier";
 import { Faction } from "../pawns/factionEnum";
 import { Action } from "../actions/actionInterface";
 import { PlayerPawn } from "../pawns/playerPawn";
-import { Warrior } from "../pawns/warrior";
 import { ActionType } from "../actions/actionTypeEnum";
 import { ActionsPreview } from "../actions/actionsPreview";
-import { Archer } from "../pawns/archer";
-import { Grappling } from "../pawns/grappling";
 import { AssassinSprite } from "../pawnSprites/assassinSprite";
-import { Assassin } from "../pawns/assassin";
 
-export class MainScene extends Phaser.Scene {
+export abstract class LevelScene extends Phaser.Scene {
   private pawnSprites: Phaser.GameObjects.Group;
   private grid: Grid;
-  private sizeMap: any = {
-    width: 10,
-    height: 6,
-  };
   private tileSize: number;
   private replayingActions: boolean = false;
   private lastPreviewDir: Phaser.Math.Vector2;
   private actionsPreview: ActionsPreview;
 
-  public constructor() {
+  public constructor(levelSetup: LevelSetup, pawns: Array<Pawn>) {
     super({
       key: "WorldScene",
     });
 
-    const levelSetup: LevelSetup = new Array(this.sizeMap.width)
-      .fill(undefined)
-      .map(
-        (value1: any, i: number): Array<CellType> =>
-          new Array(this.sizeMap.height)
-            .fill(undefined)
-            .map(
-              (value2: any, j: number): CellType =>
-                i === 0 ||
-                i === this.sizeMap.width - 1 ||
-                j === 0 ||
-                j === this.sizeMap.height - 1
-                  ? CellType.OBSTACLE
-                  : CellType.EMPTY
-            )
-      );
-    const pawns: Array<Pawn> = [
-      new Soldier(new Phaser.Math.Vector2(3, 1)),
-      new Archer(new Phaser.Math.Vector2(5, 1)),
-      new Warrior(new Phaser.Math.Vector2(5, 4)),
-      new Grappling(new Phaser.Math.Vector2(1, 4)),
-      new Assassin(new Phaser.Math.Vector2(3, 4)),
-    ];
     this.grid = new Grid(levelSetup, pawns);
   }
 
@@ -123,8 +91,8 @@ export class MainScene extends Phaser.Scene {
           }
         }
         this.add.image(
-          (i - this.sizeMap.width / 2 + 0.5) * this.tileSize,
-          (j - this.sizeMap.height / 2 + 0.5) * this.tileSize,
+          (i - this.grid.size.x / 2 + 0.5) * this.tileSize,
+          (j - this.grid.size.y / 2 + 0.5) * this.tileSize,
           texture
         );
       });
@@ -214,15 +182,15 @@ export class MainScene extends Phaser.Scene {
 
   public gridPosToWorldPos(gridPos: Phaser.Math.Vector2): Phaser.Math.Vector2 {
     return new Phaser.Math.Vector2(
-      (gridPos.x - this.sizeMap.width / 2 + 0.5) * this.tileSize,
-      (gridPos.y - this.sizeMap.height / 2 + 0.5) * this.tileSize
+      (gridPos.x - this.grid.size.x / 2 + 0.5) * this.tileSize,
+      (gridPos.y - this.grid.size.y / 2 + 0.5) * this.tileSize
     );
   }
 
   public worldPosToGridPos(worldPos: Phaser.Math.Vector2): Phaser.Math.Vector2 {
     return new Phaser.Math.Vector2(
-      Math.floor(worldPos.x / this.tileSize + this.sizeMap.width / 2),
-      Math.floor(worldPos.y / this.tileSize + this.sizeMap.height / 2)
+      Math.floor(worldPos.x / this.tileSize + this.grid.size.x / 2),
+      Math.floor(worldPos.y / this.tileSize + this.grid.size.y / 2)
     );
   }
 

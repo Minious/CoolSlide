@@ -1,7 +1,7 @@
 import { PawnSprite } from "./pawnSprite";
 import { Assassin } from "../pawns/assassin";
 import { Action } from "../actions/actionInterface";
-import { MainScene } from "../scenes/mainScene";
+import { LevelScene } from "../levels/levelScene";
 
 export class AssassinSprite extends PawnSprite {
   public constructor(scene: Phaser.Scene, x: number, y: number) {
@@ -10,7 +10,7 @@ export class AssassinSprite extends PawnSprite {
 
   public attackAssassin(action: Action, timeStep: number): void {
     const destPos: Phaser.Math.Vector2 = (this
-      .scene as MainScene).gridPosToWorldPos(action.to);
+      .scene as LevelScene).gridPosToWorldPos(action.to);
     this.scene.tweens.add({
       targets: this,
       x: destPos.x,

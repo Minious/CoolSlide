@@ -1,5 +1,5 @@
 import { Action } from "./actionInterface";
-import { MainScene } from "../scenes/mainScene";
+import { LevelScene } from "../levels/levelScene";
 import { ActionType } from "./actionTypeEnum";
 export class ActionsPreview extends Phaser.GameObjects.Group {
   private static ACTION_REPLAY_BLINK_TIMESTEP: number = 340;
@@ -56,10 +56,10 @@ export class ActionsPreview extends Phaser.GameObjects.Group {
     let midPoint: Phaser.Math.Vector2;
     let dir: Phaser.Math.Vector2;
     if (action.from) {
-      fromWorldPos = (this.scene as MainScene).gridPosToWorldPos(action.from);
+      fromWorldPos = (this.scene as LevelScene).gridPosToWorldPos(action.from);
     }
     if (action.to) {
-      toWorldPos = (this.scene as MainScene).gridPosToWorldPos(action.to);
+      toWorldPos = (this.scene as LevelScene).gridPosToWorldPos(action.to);
     }
     if (action.from && action.to) {
       midPoint = fromWorldPos.clone().lerp(toWorldPos, 0.2);
