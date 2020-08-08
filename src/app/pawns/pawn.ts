@@ -1,6 +1,9 @@
 import { Faction } from "./factionEnum";
 import { PawnSprite } from "../pawnSprites/pawnSprite";
 import { Grid } from "../grid/grid";
+import { ActionType } from "../actions/actionTypeEnum";
+import { Action } from "../actions/actionInterface";
+import { EnemyPawn } from "./enemyPawn";
 
 export abstract class Pawn {
   private static nextId: number = 0;
@@ -15,14 +18,14 @@ export abstract class Pawn {
   private _maxLife: number;
   // @ts-ignore
   private _life: number;
-  private _attack: number;
+  private _attackDamages: number;
   private _pawnSprite: PawnSprite;
 
   public constructor(
     pos: Phaser.Math.Vector2,
     faction: Faction,
     life: number,
-    attack: number,
+    attackDamages: number,
     pawnSprite?: PawnSprite
   ) {
     this._id = Pawn.nextId;
@@ -31,7 +34,7 @@ export abstract class Pawn {
     this._faction = faction;
     this._maxLife = life;
     this._life = life;
-    this._attack = attack;
+    this._attackDamages = attackDamages;
     this._pawnSprite = pawnSprite;
   }
 
@@ -51,8 +54,8 @@ export abstract class Pawn {
     return this._faction;
   }
 
-  public get attack(): number {
-    return this._attack;
+  public get attackDamages(): number {
+    return this._attackDamages;
   }
 
   public get life(): number {
@@ -63,8 +66,21 @@ export abstract class Pawn {
     this._grid = grid;
   }
 
-  public changeLife(lifeChange: number): void {
+  public changeLife(lifeChange: number): Array<Action> {
     this._life = Math.max(0, this._life + lifeChange);
+
+    if (this._life <= 0) {
+      const deathAction: Action = {
+        type: ActionType.PAWN_DESTROYED,
+        from: this.pos.clone(),
+        targetPawnSprite: this.pawnSprite,
+      };
+      this._grid.destroyPawn(this);
+
+      return [deathAction];
+    }
+
+    return [];
   }
 
   public resetPos(): void {
@@ -85,6 +101,57 @@ export abstract class Pawn {
     pawnClone._pawnSprite = this._pawnSprite;
     pawnClone._life = this._life;
     return pawnClone;
+  }
+
+  protected attack(actions: Array<Action>, targetPawn: Pawn): void {
+    actions.push({
+      type: ActionType.ATTACK,
+      from: this.pos.clone(),
+      to: targetPawn.pos.clone(),
+      fromPawnSprite: this.pawnSprite,
+      targetPawnSprite: targetPawn.pawnSprite,
+      attackingFaction: this.faction,
+      targetPawnNewLife: targetPawn.life - this._attackDamages,
+      damages: this._attackDamages,
+    });
+    const deathActions: Array<Action> = targetPawn.changeLife(
+      -this._attackDamages
+    );
+    deathActions.forEach((deathAction: Action): void => {
+      actions.push(deathAction);
+    });
+  }
+
+  protected enemiesReact(
+    actions: Array<Action>,
+    from: Phaser.Math.Vector2,
+    to: Phaser.Math.Vector2,
+    enemyPawnsHit: Array<Pawn>
+  ): void {
+    this._grid.getEnemyPawns().forEach((pawn: EnemyPawn): void => {
+      const pawnHit: boolean =
+        enemyPawnsHit.filter(
+          (otherPawn: EnemyPawn): boolean => pawn === otherPawn
+        ).length > 0;
+      const currentReactActions: Array<Action> = pawn.react(from, to, pawnHit);
+      currentReactActions.forEach((reactAction: Action): void => {
+        actions.push(reactAction);
+      });
+    });
+  }
+
+  protected move(
+    actions: Array<Action>,
+    from: Phaser.Math.Vector2,
+    to: Phaser.Math.Vector2
+  ): void {
+    this._grid.movePawn(from, to);
+    actions.push({
+      type: ActionType.MOVE,
+      from: from.clone(),
+      to: to.clone(),
+      fromPawnSprite: this.pawnSprite,
+    });
   }
 
   protected abstract _createPawnSprite(

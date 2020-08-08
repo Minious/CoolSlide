@@ -55,6 +55,7 @@ export class PawnSprite extends Phaser.GameObjects.Container {
       y: midPos.y,
       yoyo: true,
       duration: timeStep / 2,
+      ease: "Quad.easeIn",
       onYoyo: (): void =>
         action.targetPawnSprite.updateLife(action.targetPawnNewLife),
     });
@@ -68,6 +69,7 @@ export class PawnSprite extends Phaser.GameObjects.Container {
       x: destPos.x,
       y: destPos.y,
       duration: timeStep,
+      ease: "Quad.easeOut",
     });
   }
 

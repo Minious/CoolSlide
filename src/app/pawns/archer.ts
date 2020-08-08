@@ -1,7 +1,6 @@
 import { Pawn } from "./pawn";
 import { PawnSprite } from "../pawnSprites/pawnSprite";
 import { Action } from "../actions/actionInterface";
-import { ActionType } from "../actions/actionTypeEnum";
 import { EnemyPawn } from "./enemyPawn";
 import { ArcherSprite } from "../pawnSprites/archerSprite";
 
@@ -26,26 +25,7 @@ export class Archer extends EnemyPawn {
       playerPawn &&
       this._grid.isPawnAlive(playerPawn)
     ) {
-      playerPawn.changeLife(-this.attack);
-      if (playerPawn.life <= 0) {
-        this._grid.destroyPawn(playerPawn);
-
-        actions.push({
-          type: ActionType.PAWN_DESTROYED,
-          from: to.clone(),
-          targetPawnSprite: playerPawn.pawnSprite,
-        });
-      }
-      actions.push({
-        type: ActionType.ATTACK,
-        from: this.pos.clone(),
-        to: to.clone(),
-        fromPawnSprite: this.pawnSprite,
-        targetPawnSprite: playerPawn.pawnSprite,
-        attackingFaction: this.faction,
-        targetPawnNewLife: playerPawn.life,
-        damages: this.attack,
-      });
+      this.attack(actions, playerPawn);
     }
 
     return actions;

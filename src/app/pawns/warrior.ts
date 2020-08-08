@@ -1,7 +1,6 @@
 import { Pawn } from "./pawn";
 import { PawnSprite } from "../pawnSprites/pawnSprite";
 import { Action } from "../actions/actionInterface";
-import { ActionType } from "../actions/actionTypeEnum";
 import { EnemyPawn } from "./enemyPawn";
 import { WarriorSprite } from "../pawnSprites/warriorSprite";
 
@@ -27,27 +26,7 @@ export class Warrior extends EnemyPawn {
       playerPawn &&
       this._grid.isPawnAlive(playerPawn)
     ) {
-      playerPawn.changeLife(-this.attack);
-      actions.push({
-        type: ActionType.ATTACK,
-        from: this.pos.clone(),
-        to: to.clone(),
-        fromPawnSprite: this.pawnSprite,
-        targetPawnSprite: playerPawn.pawnSprite,
-        attackingFaction: this.faction,
-        targetPawnNewLife: playerPawn.life,
-        damages: this.attack,
-      });
-
-      if (playerPawn.life <= 0) {
-        this._grid.destroyPawn(playerPawn);
-
-        actions.push({
-          type: ActionType.PAWN_DESTROYED,
-          from: to.clone(),
-          targetPawnSprite: playerPawn.pawnSprite,
-        });
-      }
+      this.attack(actions, playerPawn);
     }
 
     return actions;
