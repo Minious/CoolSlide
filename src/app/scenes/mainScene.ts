@@ -2,6 +2,7 @@ import * as Phaser from "phaser";
 
 import * as playerPawnImage from "../../assets/playerPawn.png";
 import * as enemyPawnImage from "../../assets/enemyPawn.png";
+import * as archerPawnImage from "../../assets/archerPawn.png";
 import * as obstacleCellImage from "../../assets/obstacleCell.png";
 import * as emptyCellImage from "../../assets/emptyCell.png";
 import * as fullHeartImage from "../../assets/fullHeart.png";
@@ -22,6 +23,7 @@ import { PlayerPawn } from "../pawns/playerPawn";
 import { Warrior } from "../pawns/warrior";
 import { ActionType } from "../actions/actionTypeEnum";
 import { ActionsPreview } from "../actions/actionsPreview";
+import { Archer } from "../pawns/archer";
 
 export class MainScene extends Phaser.Scene {
   private pawnSprites: Phaser.GameObjects.Group;
@@ -58,7 +60,8 @@ export class MainScene extends Phaser.Scene {
       );
     const pawns: Array<Pawn> = [
       new Soldier(new Phaser.Math.Vector2(3, 1)),
-      new Warrior(new Phaser.Math.Vector2(5, 1)),
+      new Archer(new Phaser.Math.Vector2(5, 1)),
+      new Warrior(new Phaser.Math.Vector2(5, 4)),
     ];
     this.grid = new Grid(levelSetup, pawns);
   }
@@ -67,6 +70,7 @@ export class MainScene extends Phaser.Scene {
   public preload(): void {
     this.load.image("playerPawn", playerPawnImage.default);
     this.load.image("enemyPawn", enemyPawnImage.default);
+    this.load.image("archerPawn", archerPawnImage.default);
     this.load.image("obstacleCell", obstacleCellImage.default);
     this.load.image("emptyCell", emptyCellImage.default);
     this.load.image("fullHeart", fullHeartImage.default);
