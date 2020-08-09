@@ -58,6 +58,10 @@ export abstract class Pawn {
     return this._life;
   }
 
+  public get maxLife(): number {
+    return this._maxLife;
+  }
+
   public set grid(grid: Grid) {
     this._grid = grid;
   }

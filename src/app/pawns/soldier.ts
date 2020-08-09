@@ -60,6 +60,6 @@ export class Soldier extends PlayerPawn {
   }
 
   protected _clone(): Pawn {
-    return new Soldier(this.pos.clone());
+    return new Soldier(this.pos ? this.pos.clone() : undefined);
   }
 }

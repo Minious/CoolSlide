@@ -40,6 +40,6 @@ export class Archer extends EnemyPawn {
   }
 
   protected _clone(): Pawn {
-    return new Archer(this.pos.clone());
+    return new Archer(this.pos ? this.pos.clone() : undefined);
   }
 }

@@ -78,6 +78,6 @@ export class Grappling extends PlayerPawn {
   }
 
   protected _clone(): Pawn {
-    return new Grappling(this.pos.clone());
+    return new Grappling(this.pos ? this.pos.clone() : undefined);
   }
 }

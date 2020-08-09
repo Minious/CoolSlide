@@ -41,6 +41,6 @@ export class Warrior extends EnemyPawn {
   }
 
   protected _clone(): Pawn {
-    return new Warrior(this.pos.clone());
+    return new Warrior(this.pos ? this.pos.clone() : undefined);
   }
 }

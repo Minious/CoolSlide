@@ -58,7 +58,7 @@ export class Assassin extends PlayerPawn {
   }
 
   protected _clone(): Pawn {
-    return new Assassin(this.pos.clone());
+    return new Assassin(this.pos ? this.pos.clone() : undefined);
   }
 
   private attackAssassin(

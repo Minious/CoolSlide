@@ -10,8 +10,13 @@ export class Grid {
   private _levelSetup: LevelSetup;
   private _grid: Array<Array<Pawn>>;
   private _pawns: Array<Pawn>;
+  private _allPawns: Array<Pawn>;
 
-  public constructor(levelSetup: LevelSetup, pawns: Array<Pawn>) {
+  public constructor(
+    levelSetup: LevelSetup,
+    pawns: Array<Pawn>,
+    allPawns?: Array<Pawn>
+  ) {
     this._size = new Phaser.Math.Vector2(
       levelSetup.length,
       levelSetup[0].length
@@ -25,6 +30,7 @@ export class Grid {
       this._grid[pawn.pos.x][pawn.pos.y] = pawn;
       pawn.grid = this;
     });
+    this._allPawns = allPawns ? allPawns : pawns.slice();
   }
 
   public get size(): Phaser.Math.Vector2 {
@@ -36,10 +42,17 @@ export class Grid {
   }
 
   public copy(): Grid {
-    const pawnsCopy: Array<Pawn> = this._pawns.map(
-      (pawn: Pawn): Pawn => pawn.clone()
+    const pawnsCopy: Array<Pawn> = [];
+    const allPawnsCopy: Array<Pawn> = this._allPawns.map(
+      (pawn: Pawn): Pawn => {
+        const pawnClone: Pawn = pawn.clone();
+        if (this.isPawnAlive(pawn)) {
+          pawnsCopy.push(pawnClone);
+        }
+        return pawnClone;
+      }
     );
-    const gridCopy: Grid = new Grid(this.levelSetup, pawnsCopy);
+    const gridCopy: Grid = new Grid(this.levelSetup, pawnsCopy, allPawnsCopy);
     pawnsCopy.forEach((pawnCopy: Pawn): void => {
       pawnCopy.grid = gridCopy;
     });
@@ -48,6 +61,12 @@ export class Grid {
 
   public getPawns(): Array<Pawn> {
     return this._pawns;
+  }
+
+  public getAllPlayerPawns(): Array<PlayerPawn> {
+    return this._allPawns.filter(
+      (pawn: Pawn): boolean => pawn.faction === Faction.PLAYER
+    ) as Array<PlayerPawn>;
   }
 
   public getPlayerPawns(): Array<PlayerPawn> {
@@ -60,6 +79,31 @@ export class Grid {
     return this._pawns.filter(
       (pawn: Pawn): boolean => pawn.faction === Faction.ENEMY
     ) as Array<EnemyPawn>;
+  }
+
+  public arePlayerPawnsDefeated(): boolean {
+    return this.getPlayerPawns().length === 0;
+  }
+
+  public areEnemyPawnsDefeated(): boolean {
+    return this.getEnemyPawns().length === 0;
+  }
+
+  public getScore(): number {
+    const lifeLost: number = this.getAllPlayerPawns()
+      .map((playerPawn: PlayerPawn): number => {
+        return playerPawn.maxLife - playerPawn.life;
+      })
+      .reduce((a: number, c: number): number => a + c, 0);
+    if (lifeLost === 0) {
+      return 3;
+    } else if (lifeLost < 3) {
+      return 2;
+    } else if (lifeLost < 6) {
+      return 1;
+    } else {
+      return 0;
+    }
   }
 
   public isCellFree(pos: Phaser.Math.Vector2): boolean {

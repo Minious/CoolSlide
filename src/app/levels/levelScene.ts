@@ -1,19 +1,5 @@
 import * as Phaser from "phaser";
 
-import * as playerPawnImage from "../../assets/playerPawn.png";
-import * as grapplingPawnImage from "../../assets/grapplingPawn.png";
-import * as assassinPawnImage from "../../assets/assassinPawn.png";
-import * as enemyPawnImage from "../../assets/enemyPawn.png";
-import * as archerPawnImage from "../../assets/archerPawn.png";
-import * as obstacleCellImage from "../../assets/obstacleCell.png";
-import * as emptyCellImage from "../../assets/emptyCell.png";
-import * as fullHeartImage from "../../assets/fullHeart.png";
-import * as emptyHeartImage from "../../assets/emptyHeart.png";
-import * as moveIconImage from "../../assets/moveIcon.png";
-import * as attackIconImage from "../../assets/attackIcon.png";
-import * as attackAssassinIconImage from "../../assets/attackAssassinIcon.png";
-import * as deathIconImage from "../../assets/deathIcon.png";
-
 import { PawnSprite } from "../pawnSprites/pawnSprite";
 import { Pawn } from "../pawns/pawn";
 import { Grid } from "../grid/grid";
@@ -34,29 +20,10 @@ export abstract class LevelScene extends Phaser.Scene {
   private lastPreviewDir: Phaser.Math.Vector2;
   private actionsPreview: ActionsPreview;
 
-  public constructor(levelSetup: LevelSetup, pawns: Array<Pawn>) {
-    super({
-      key: "WorldScene",
-    });
+  public constructor(key: string, levelSetup: LevelSetup, pawns: Array<Pawn>) {
+    super({ key });
 
     this.grid = new Grid(levelSetup, pawns);
-  }
-
-  // tslint:disable-next-line: no-empty
-  public preload(): void {
-    this.load.image("playerPawn", playerPawnImage.default);
-    this.load.image("grapplingPawn", grapplingPawnImage.default);
-    this.load.image("assassinPawn", assassinPawnImage.default);
-    this.load.image("enemyPawn", enemyPawnImage.default);
-    this.load.image("archerPawn", archerPawnImage.default);
-    this.load.image("obstacleCell", obstacleCellImage.default);
-    this.load.image("emptyCell", emptyCellImage.default);
-    this.load.image("fullHeart", fullHeartImage.default);
-    this.load.image("emptyHeart", emptyHeartImage.default);
-    this.load.image("moveIcon", moveIconImage.default);
-    this.load.image("attackIcon", attackIconImage.default);
-    this.load.image("attackAssassinIcon", attackAssassinIconImage.default);
-    this.load.image("deathIcon", deathIconImage.default);
   }
 
   public create(): void {
@@ -262,9 +229,23 @@ export abstract class LevelScene extends Phaser.Scene {
         }
         if (currentActionIdx >= actions.length) {
           this.replayingActions = false;
+
+          if (this.grid.arePlayerPawnsDefeated()) {
+            this.endLevel(0);
+          } else if (this.grid.areEnemyPawnsDefeated()) {
+            this.endLevel(this.grid.getScore());
+          }
         }
         currentActionIdx += 1;
       },
     });
+  }
+
+  private endLevel(score: number): void {
+    this.input.off("pointermove");
+    this.input.off("pointerup");
+
+    this.scene.bringToTop("ResultScene");
+    this.scene.run("ResultScene", { score });
   }
 }
