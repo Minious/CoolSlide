@@ -1,79 +1,29 @@
 import * as Phaser from "phaser";
 
-import { PawnSprite } from "../pawnSprites/pawnSprite";
 import { Pawn } from "../pawns/pawn";
 import { Grid } from "../grid/grid";
 import { LevelSetup } from "../grid/levelSetupType";
-import { CellType } from "../grid/cellType";
 import { Faction } from "../pawns/factionEnum";
 import { Action } from "../actions/actionInterface";
 import { PlayerPawn } from "../pawns/playerPawn";
 import { ActionType } from "../actions/actionTypeEnum";
 import { ActionsPreview } from "../actions/actionsPreview";
 import { AssassinSprite } from "../pawnSprites/assassinSprite";
+import { AbstractLevelScene } from "./abstractLevelScene";
 
-export abstract class LevelScene extends Phaser.Scene {
-  private pawnSprites: Phaser.GameObjects.Group;
-  private grid: Grid;
-  private tileSize: number;
+export abstract class LevelScene extends AbstractLevelScene {
   private replayingActions: boolean = false;
   private lastPreviewDir: Phaser.Math.Vector2;
   private actionsPreview: ActionsPreview;
 
   public constructor(key: string, levelSetup: LevelSetup, pawns: Array<Pawn>) {
-    super({ key });
-
-    this.grid = new Grid(levelSetup, pawns);
+    super(key, levelSetup, pawns);
   }
 
   public create(): void {
-    // Disables right click
-    this.game.canvas.oncontextmenu = (e: MouseEvent): void => {
-      e.preventDefault();
-    };
+    super.create();
 
-    this.pawnSprites = this.add.group();
     this.actionsPreview = new ActionsPreview(this);
-
-    /**
-     * Places the camera centered to the origin (default is left upper corner is
-     * at origin)
-     */
-    this.cameras.main.setZoom(2);
-    this.cameras.main.centerOn(0, 0);
-
-    this.tileSize = this.textures.get("emptyCell").get(0).width;
-
-    this.grid.levelSetup.forEach((column: Array<CellType>, i: number): void => {
-      column.forEach((cellType: CellType, j: number): void => {
-        let texture: string;
-        switch (cellType) {
-          case CellType.OBSTACLE: {
-            texture = "obstacleCell";
-            break;
-          }
-          case CellType.EMPTY: {
-            texture = "emptyCell";
-            break;
-          }
-        }
-        this.add.image(
-          (i - this.grid.size.x / 2 + 0.5) * this.tileSize,
-          (j - this.grid.size.y / 2 + 0.5) * this.tileSize,
-          texture
-        );
-      });
-    });
-
-    this.grid.getPawns().forEach((pawn: Pawn): void => {
-      const pawnPos: Phaser.Math.Vector2 = this.gridPosToWorldPos(pawn.pos);
-      const pawnSprite: PawnSprite = pawn.createPawnSprite(
-        this,
-        pawnPos.x,
-        pawnPos.y
-      );
-      this.pawnSprites.add(pawnSprite, true);
-    });
 
     this.input.on(
       "pointermove",
@@ -145,20 +95,6 @@ export abstract class LevelScene extends Phaser.Scene {
     } else {
       return new Phaser.Math.Vector2(0, 0);
     }
-  }
-
-  public gridPosToWorldPos(gridPos: Phaser.Math.Vector2): Phaser.Math.Vector2 {
-    return new Phaser.Math.Vector2(
-      (gridPos.x - this.grid.size.x / 2 + 0.5) * this.tileSize,
-      (gridPos.y - this.grid.size.y / 2 + 0.5) * this.tileSize
-    );
-  }
-
-  public worldPosToGridPos(worldPos: Phaser.Math.Vector2): Phaser.Math.Vector2 {
-    return new Phaser.Math.Vector2(
-      Math.floor(worldPos.x / this.tileSize + this.grid.size.x / 2),
-      Math.floor(worldPos.y / this.tileSize + this.grid.size.y / 2)
-    );
   }
 
   private previewActions(

@@ -156,6 +156,14 @@ export class Grid {
     console.log(`INFO : Pawn destroyed`);
   }
 
+  public addPawn(pawn: Pawn): void {
+    if (this.isCellFree(pawn.pos)) {
+      this._grid[pawn.pos.x][pawn.pos.y] = pawn;
+      this._pawns.push(pawn);
+      this._allPawns.push(pawn);
+    }
+  }
+
   public movePawn(from: Phaser.Math.Vector2, to: Phaser.Math.Vector2): void {
     console.log(
       `INFO : Moving pawn from (${from.x};${from.y}) to (${to.x};${to.y})`

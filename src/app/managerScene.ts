@@ -56,7 +56,8 @@ export class ManagerScene extends Phaser.Scene {
   }
 
   public create(): void {
-    this.startNextLevel();
+    // this.startNextLevel();
+    this.scene.start("LevelBuilderScene");
   }
 
   public startNextLevel(): void {
