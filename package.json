@@ -33,6 +33,7 @@
   "dependencies": {
     "@types/lodash": "^4.14.159",
     "express": "^4.17.1",
+    "firebase": "^7.17.2",
     "loglevel": "^1.6.8",
     "loglevel-plugin-prefix": "^0.8.4",
     "phaser": "^3.23.0"

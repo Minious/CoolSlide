@@ -1,3 +1,5 @@
+import * as firebase from "firebase";
+
 import { AbstractLevelScene } from "./abstractLevelScene";
 import { LevelSetup } from "../grid/levelSetupType";
 import { CellType } from "../grid/cellType";
@@ -124,6 +126,16 @@ export class LevelBuilderScene extends AbstractLevelScene {
     this.input.keyboard.on(
       `keydown-SPACE`,
       (): void => {
+        const levelRef: firebase.database.ThenableReference = firebase
+          .database()
+          .ref("levels")
+          .push();
+        const pawns: Array<Pawn> = this.grid.getPawnsRef();
+        const levelSetup: LevelSetup = this.grid.levelSetup;
+        levelRef.set({
+          levelSetup,
+          pawns,
+        });
         (this.scene.get("ManagerScene") as ManagerScene).startCustomLevel(
           this.grid.levelSetup,
           this.grid.getPawns()

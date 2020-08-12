@@ -63,6 +63,10 @@ export class Grid {
     return this._pawns;
   }
 
+  public getPawnsRef(): Array<Pawn> {
+    return this._pawns.map((pawn: Pawn): Pawn => pawn.cloneRef());
+  }
+
   public getAllPlayerPawns(): Array<PlayerPawn> {
     return this._allPawns.filter(
       (pawn: Pawn): boolean => pawn.faction === Faction.PLAYER

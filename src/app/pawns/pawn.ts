@@ -106,6 +106,13 @@ export abstract class Pawn {
     return pawnClone;
   }
 
+  public cloneRef(): Pawn {
+    const pawnClone: Pawn = this._clone();
+    // tslint:disable-next-line: no-null-keyword
+    pawnClone._pawnSprite = null;
+    return pawnClone;
+  }
+
   protected attack(actions: Array<Action>, targetPawn: Pawn): void {
     actions.push({
       type: ActionType.ATTACK,
