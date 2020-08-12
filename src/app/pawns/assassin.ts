@@ -5,6 +5,7 @@ import { PawnSprite } from "../pawnSprites/pawnSprite";
 import { Action } from "../actions/actionInterface";
 import { PlayerPawn } from "./playerPawn";
 import { ActionType } from "../actions/actionTypeEnum";
+import { PawnType } from "./pawnTypeEnum";
 
 export class Assassin extends PlayerPawn {
   public static MAX_LIFE: number = 1;
@@ -12,7 +13,7 @@ export class Assassin extends PlayerPawn {
   public static TEXTURE: string = "assassinPawn";
 
   public constructor(pos: Phaser.Math.Vector2) {
-    super(pos, Assassin.MAX_LIFE, Assassin.ATTACK);
+    super(pos, PawnType.Assassin, Assassin.MAX_LIFE, Assassin.ATTACK);
   }
 
   public action(

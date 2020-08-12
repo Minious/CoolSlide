@@ -4,14 +4,11 @@ import { AbstractLevelScene } from "./abstractLevelScene";
 import { LevelSetup } from "../grid/levelSetupType";
 import { CellType } from "../grid/cellType";
 import { Pawn } from "../pawns/pawn";
-import { Soldier } from "../pawns/soldier";
 import { PawnSprite } from "../pawnSprites/pawnSprite";
 import { pawnFactory } from "../pawns/pawnFactory";
-import { Assassin } from "../pawns/assassin";
-import { Grappling } from "../pawns/grappling";
-import { Archer } from "../pawns/archer";
-import { Warrior } from "../pawns/warrior";
 import { ManagerScene } from "../managerScene";
+import { PawnType } from "../pawns/pawnTypeEnum";
+import { pawnTypeToPawnClass } from "../pawns/pawnTypeToPawnClass";
 
 export class LevelBuilderScene extends AbstractLevelScene {
   private static keyToCellType: {
@@ -21,17 +18,17 @@ export class LevelBuilderScene extends AbstractLevelScene {
     Z: CellType.EMPTY,
   };
   private static keyToPawnType: {
-    [key: string]: typeof Pawn;
+    [key: string]: PawnType;
   } = {
-    E: Soldier,
-    R: Grappling,
-    T: Assassin,
-    Y: Warrior,
-    U: Archer,
+    E: PawnType.Soldier,
+    R: PawnType.Grappling,
+    T: PawnType.Assassin,
+    Y: PawnType.Warrior,
+    U: PawnType.Archer,
   };
 
   private selectedCellType: CellType;
-  private selectedPawn: typeof Pawn;
+  private selectedPawn: PawnType;
   private cursorSprite: Phaser.GameObjects.Image;
 
   public constructor() {
@@ -102,7 +99,7 @@ export class LevelBuilderScene extends AbstractLevelScene {
         this.input.keyboard.on(
           `keydown-${key}`,
           (): void => {
-            const pawnType: typeof Pawn = LevelBuilderScene.keyToPawnType[key];
+            const pawnType: PawnType = LevelBuilderScene.keyToPawnType[key];
             this.setSelectedPawn(pawnType);
           },
           this
@@ -152,9 +149,9 @@ export class LevelBuilderScene extends AbstractLevelScene {
     this.cursorSprite.setTexture(cellType);
   }
 
-  public setSelectedPawn(pawnType: typeof Pawn): void {
+  public setSelectedPawn(pawnType: PawnType): void {
     this.selectedCellType = undefined;
-    this.cursorSprite.setTexture(pawnType.TEXTURE);
+    this.cursorSprite.setTexture(pawnTypeToPawnClass(pawnType).TEXTURE);
     this.selectedPawn = pawnType;
   }
 

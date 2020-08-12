@@ -4,6 +4,7 @@ import { GrapplingSprite } from "../pawnSprites/grapplingSprite";
 import { PawnSprite } from "../pawnSprites/pawnSprite";
 import { Action } from "../actions/actionInterface";
 import { PlayerPawn } from "./playerPawn";
+import { PawnType } from "./pawnTypeEnum";
 
 export class Grappling extends PlayerPawn {
   public static MAX_LIFE: number = 3;
@@ -11,7 +12,7 @@ export class Grappling extends PlayerPawn {
   public static TEXTURE: string = "grapplingPawn";
 
   public constructor(pos: Phaser.Math.Vector2) {
-    super(pos, Grappling.MAX_LIFE, Grappling.ATTACK);
+    super(pos, PawnType.Grappling, Grappling.MAX_LIFE, Grappling.ATTACK);
   }
 
   public action(

@@ -4,6 +4,7 @@ import { Grid } from "../grid/grid";
 import { ActionType } from "../actions/actionTypeEnum";
 import { Action } from "../actions/actionInterface";
 import { EnemyPawn } from "./enemyPawn";
+import { PawnType } from "./pawnTypeEnum";
 
 export abstract class Pawn {
   public static MAX_LIFE: number;
@@ -19,9 +20,11 @@ export abstract class Pawn {
   protected _life: number;
   protected _attackDamages: number;
   protected _pawnSprite: PawnSprite;
+  protected _type: PawnType;
 
   public constructor(
     pos: Phaser.Math.Vector2,
+    type: PawnType,
     faction: Faction,
     life: number,
     attackDamages: number,
@@ -30,11 +33,16 @@ export abstract class Pawn {
     this._id = Pawn.NEXT_ID;
     Pawn.NEXT_ID += 1;
     this._pos = pos;
+    this._type = type;
     this._faction = faction;
     this._maxLife = life;
     this._life = life;
     this._attackDamages = attackDamages;
     this._pawnSprite = pawnSprite;
+  }
+
+  public get type(): PawnType {
+    return this._type;
   }
 
   public get pos(): Phaser.Math.Vector2 {

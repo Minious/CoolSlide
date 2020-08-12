@@ -6,25 +6,24 @@ import { Archer } from "./archer";
 import { Warrior } from "./warrior";
 import { PawnType } from "./pawnTypeEnum";
 
-export const pawnFactory: (
-  pawnType: PawnType,
-  pos: Phaser.Math.Vector2
-) => Pawn = (pawnType: PawnType, pos: Phaser.Math.Vector2): Pawn => {
+export const pawnTypeToPawnClass: (pawnType: PawnType) => typeof Pawn = (
+  pawnType: PawnType
+): typeof Pawn => {
   switch (pawnType) {
     case PawnType.Soldier: {
-      return new Soldier(pos);
+      return Soldier;
     }
     case PawnType.Grappling: {
-      return new Grappling(pos);
+      return Grappling;
     }
     case PawnType.Assassin: {
-      return new Assassin(pos);
+      return Assassin;
     }
     case PawnType.Archer: {
-      return new Archer(pos);
+      return Archer;
     }
     case PawnType.Warrior: {
-      return new Warrior(pos);
+      return Warrior;
     }
   }
   return undefined;

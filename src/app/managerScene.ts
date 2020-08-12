@@ -1,3 +1,7 @@
+import * as firebase from "firebase";
+// tslint:disable-next-line: no-submodule-imports
+import { DataSnapshot } from "firebase-functions/lib/providers/database";
+
 import { Level001 } from "./levels/level001";
 import { Level002 } from "./levels/level002";
 import { LevelScene } from "./levels/levelScene";
@@ -25,6 +29,7 @@ import { Archer } from "./pawns/archer";
 import { Soldier } from "./pawns/soldier";
 import { Grappling } from "./pawns/grappling";
 import { Assassin } from "./pawns/assassin";
+import { pawnFactory } from "./pawns/pawnFactory";
 
 export class ManagerScene extends Phaser.Scene {
   public LEVELS_ORDER: Map<string, typeof LevelScene> = new Map([
@@ -65,7 +70,8 @@ export class ManagerScene extends Phaser.Scene {
 
   public create(): void {
     // this.startNextLevel();
-    this.scene.start("LevelBuilderScene");
+    // this.scene.start("LevelBuilderScene");
+    this.startFirebaseLevel();
   }
 
   public startNextLevel(): void {
@@ -103,5 +109,23 @@ export class ManagerScene extends Phaser.Scene {
       customLevelScene,
       true
     ) as LevelScene;
+  }
+
+  public startFirebaseLevel(): void {
+    const levelRefs: firebase.database.Query = firebase
+      .database()
+      .ref("levels")
+      .limitToLast(1);
+    levelRefs.on("child_added", (levelRef: DataSnapshot): void => {
+      const pawns: Array<Pawn> = levelRef.val().pawns.map(
+        (pawnRef: any): Pawn => {
+          return pawnFactory(
+            pawnRef._type,
+            new Phaser.Math.Vector2(pawnRef._pos.x, pawnRef._pos.y)
+          );
+        }
+      );
+      this.startCustomLevel(levelRef.val().levelSetup, pawns);
+    });
   }
 }

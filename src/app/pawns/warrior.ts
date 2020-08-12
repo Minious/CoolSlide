@@ -3,6 +3,7 @@ import { PawnSprite } from "../pawnSprites/pawnSprite";
 import { Action } from "../actions/actionInterface";
 import { EnemyPawn } from "./enemyPawn";
 import { WarriorSprite } from "../pawnSprites/warriorSprite";
+import { PawnType } from "./pawnTypeEnum";
 
 export class Warrior extends EnemyPawn {
   public static MAX_LIFE: number = 2;
@@ -10,7 +11,7 @@ export class Warrior extends EnemyPawn {
   public static TEXTURE: string = "warriorPawn";
 
   public constructor(pos: Phaser.Math.Vector2) {
-    super(pos, Warrior.MAX_LIFE, Warrior.ATTACK);
+    super(pos, PawnType.Warrior, Warrior.MAX_LIFE, Warrior.ATTACK);
   }
 
   public react(
