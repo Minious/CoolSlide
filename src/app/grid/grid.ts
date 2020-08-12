@@ -117,7 +117,7 @@ export class Grid {
     );
   }
 
-  public getCell(pos: Phaser.Math.Vector2): Pawn {
+  public getCellAt(pos: Phaser.Math.Vector2): Pawn {
     if (
       pos.x < 0 ||
       pos.x >= this._size.x ||
@@ -128,6 +128,10 @@ export class Grid {
     } else {
       return this._grid[pos.x][pos.y];
     }
+  }
+
+  public setCellAt(pos: Phaser.Math.Vector2, cellType: CellType): void {
+    this._levelSetup[pos.x][pos.y] = cellType;
   }
 
   public isPawnAlive(pawn: Pawn): boolean {
@@ -178,7 +182,7 @@ export class Grid {
       ) {
         this.destroyPawn(pawn);
       } else if (!this._grid[to.x][to.y]) {
-        if (!this._levelSetup[to.x][to.y]) {
+        if (this._levelSetup[to.x][to.y] === CellType.EMPTY) {
           this._grid[from.x][from.y] = undefined;
           this._grid[to.x][to.y] = pawn;
           pawn.pos = to;

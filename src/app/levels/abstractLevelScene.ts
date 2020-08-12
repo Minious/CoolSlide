@@ -8,6 +8,7 @@ export abstract class AbstractLevelScene extends Phaser.Scene {
   protected grid: Grid;
   protected tileSize: number;
   protected pawnSprites: Phaser.GameObjects.Group;
+  protected cellSprites: Array<Array<Phaser.GameObjects.Image>>;
 
   public constructor(key: string, levelSetup: LevelSetup, pawns: Array<Pawn>) {
     super({ key });
@@ -32,26 +33,18 @@ export abstract class AbstractLevelScene extends Phaser.Scene {
 
     this.tileSize = this.textures.get("emptyCell").get(0).width;
 
-    this.grid.levelSetup.forEach((column: Array<CellType>, i: number): void => {
-      column.forEach((cellType: CellType, j: number): void => {
-        let texture: string;
-        switch (cellType) {
-          case CellType.OBSTACLE: {
-            texture = "obstacleCell";
-            break;
+    this.cellSprites = this.grid.levelSetup.map(
+      (column: Array<CellType>, i: number): Array<Phaser.GameObjects.Image> =>
+        column.map(
+          (cellType: CellType, j: number): Phaser.GameObjects.Image => {
+            return this.add.image(
+              (i - this.grid.size.x / 2 + 0.5) * this.tileSize,
+              (j - this.grid.size.y / 2 + 0.5) * this.tileSize,
+              cellType
+            );
           }
-          case CellType.EMPTY: {
-            texture = "emptyCell";
-            break;
-          }
-        }
-        this.add.image(
-          (i - this.grid.size.x / 2 + 0.5) * this.tileSize,
-          (j - this.grid.size.y / 2 + 0.5) * this.tileSize,
-          texture
-        );
-      });
-    });
+        )
+    );
 
     this.grid.getPawns().forEach((pawn: Pawn): void => {
       const pawnPos: Phaser.Math.Vector2 = this.gridPosToWorldPos(pawn.pos);

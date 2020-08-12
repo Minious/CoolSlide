@@ -7,6 +7,7 @@ import { ArcherSprite } from "../pawnSprites/archerSprite";
 export class Archer extends EnemyPawn {
   public static MAX_LIFE: number = 1;
   public static ATTACK: number = 1;
+  public static TEXTURE: string = "archerPawn";
 
   public constructor(pos: Phaser.Math.Vector2) {
     super(pos, Archer.MAX_LIFE, Archer.ATTACK);
@@ -18,7 +19,7 @@ export class Archer extends EnemyPawn {
     pawnHit: boolean
   ): Array<Action> {
     const actions: Array<Action> = [];
-    const playerPawn: Pawn = this._grid.getCell(to);
+    const playerPawn: Pawn = this._grid.getCellAt(to);
     if (
       this._grid.isPawnAlive(this) &&
       to.clone().subtract(this.pos).length() <= 1 &&

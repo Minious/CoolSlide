@@ -6,7 +6,10 @@ import { Action } from "../actions/actionInterface";
 import { EnemyPawn } from "./enemyPawn";
 
 export abstract class Pawn {
-  private static nextId: number = 0;
+  public static MAX_LIFE: number;
+  public static ATTACK: number;
+  public static TEXTURE: string;
+  private static NEXT_ID: number = 0;
 
   protected _grid: Grid;
   protected _id: number;
@@ -24,8 +27,8 @@ export abstract class Pawn {
     attackDamages: number,
     pawnSprite?: PawnSprite
   ) {
-    this._id = Pawn.nextId;
-    Pawn.nextId += 1;
+    this._id = Pawn.NEXT_ID;
+    Pawn.NEXT_ID += 1;
     this._pos = pos;
     this._faction = faction;
     this._maxLife = life;

@@ -8,6 +8,7 @@ import { PlayerPawn } from "./playerPawn";
 export class Grappling extends PlayerPawn {
   public static MAX_LIFE: number = 3;
   public static ATTACK: number = 1;
+  public static TEXTURE: string = "grapplingPawn";
 
   public constructor(pos: Phaser.Math.Vector2) {
     super(pos, Grappling.MAX_LIFE, Grappling.ATTACK);
@@ -33,7 +34,7 @@ export class Grappling extends PlayerPawn {
         from.x + leftDir.x,
         from.y + leftDir.y
       );
-      const leftCell: Pawn = this._grid.getCell(leftPos);
+      const leftCell: Pawn = this._grid.getCellAt(leftPos);
       const isLeftEnemy: boolean =
         leftCell && leftCell.faction === Faction.ENEMY;
       const rightDir: Phaser.Math.Vector2 = new Phaser.Math.Vector2(
@@ -44,7 +45,7 @@ export class Grappling extends PlayerPawn {
         from.x + rightDir.x,
         from.y + rightDir.y
       );
-      const rightCell: Pawn = this._grid.getCell(rightPos);
+      const rightCell: Pawn = this._grid.getCellAt(rightPos);
       const isRightEnemy: boolean =
         rightCell && rightCell.faction === Faction.ENEMY;
 

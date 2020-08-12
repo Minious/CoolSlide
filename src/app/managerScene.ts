@@ -2,10 +2,10 @@ import { Level001 } from "./levels/level001";
 import { Level002 } from "./levels/level002";
 import { LevelScene } from "./levels/levelScene";
 
-import * as playerPawnImage from "../assets/playerPawn.png";
+import * as soldierPawnImage from "../assets/soldierPawn.png";
 import * as grapplingPawnImage from "../assets/grapplingPawn.png";
 import * as assassinPawnImage from "../assets/assassinPawn.png";
-import * as enemyPawnImage from "../assets/enemyPawn.png";
+import * as warriorPawnImage from "../assets/warriorPawn.png";
 import * as archerPawnImage from "../assets/archerPawn.png";
 import * as obstacleCellImage from "../assets/obstacleCell.png";
 import * as emptyCellImage from "../assets/emptyCell.png";
@@ -17,6 +17,14 @@ import * as moveIconImage from "../assets/moveIcon.png";
 import * as attackIconImage from "../assets/attackIcon.png";
 import * as attackAssassinIconImage from "../assets/attackAssassinIcon.png";
 import * as deathIconImage from "../assets/deathIcon.png";
+import { LevelSetup } from "./grid/levelSetupType";
+import { Pawn } from "./pawns/pawn";
+import { CellType } from "./grid/cellType";
+import { Warrior } from "./pawns/warrior";
+import { Archer } from "./pawns/archer";
+import { Soldier } from "./pawns/soldier";
+import { Grappling } from "./pawns/grappling";
+import { Assassin } from "./pawns/assassin";
 
 export class ManagerScene extends Phaser.Scene {
   public LEVELS_ORDER: Map<string, typeof LevelScene> = new Map([
@@ -30,13 +38,13 @@ export class ManagerScene extends Phaser.Scene {
     super({ key: "ManagerScene" });
   }
   public preload(): void {
-    this.load.image("playerPawn", playerPawnImage.default);
-    this.load.image("grapplingPawn", grapplingPawnImage.default);
-    this.load.image("assassinPawn", assassinPawnImage.default);
-    this.load.image("enemyPawn", enemyPawnImage.default);
-    this.load.image("archerPawn", archerPawnImage.default);
-    this.load.image("obstacleCell", obstacleCellImage.default);
-    this.load.image("emptyCell", emptyCellImage.default);
+    this.load.image(Soldier.TEXTURE, soldierPawnImage.default);
+    this.load.image(Grappling.TEXTURE, grapplingPawnImage.default);
+    this.load.image(Assassin.TEXTURE, assassinPawnImage.default);
+    this.load.image(Warrior.TEXTURE, warriorPawnImage.default);
+    this.load.image(Archer.TEXTURE, archerPawnImage.default);
+    this.load.image(CellType.OBSTACLE, obstacleCellImage.default);
+    this.load.image(CellType.EMPTY, emptyCellImage.default);
     this.load.image("fullHeart", fullHeartImage.default);
     this.load.image("emptyHeart", emptyHeartImage.default);
     this.load.image("fullStar", fullStarImage.default);
@@ -75,5 +83,25 @@ export class ManagerScene extends Phaser.Scene {
         true
       ) as LevelScene;
     }
+  }
+
+  public startCustomLevel(levelSetup: LevelSetup, pawns: Array<Pawn>): void {
+    const customLevelKey: string = "CustomLevel";
+    if (
+      this.currentLevel &&
+      this.currentLevel.scene.isActive(this.currentLevel.scene.key)
+    ) {
+      this.currentLevel.scene.remove(this.currentLevel.scene.key);
+    }
+    const customLevelScene: LevelScene = new LevelScene(
+      customLevelKey,
+      levelSetup,
+      pawns
+    );
+    this.currentLevel = this.scene.add(
+      customLevelKey,
+      customLevelScene,
+      true
+    ) as LevelScene;
   }
 }

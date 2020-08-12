@@ -8,6 +8,7 @@ import { PlayerPawn } from "./playerPawn";
 export class Soldier extends PlayerPawn {
   public static MAX_LIFE: number = 3;
   public static ATTACK: number = 1;
+  public static TEXTURE: string = "soldierPawn";
 
   public constructor(pos: Phaser.Math.Vector2) {
     super(pos, Soldier.MAX_LIFE, Soldier.ATTACK);
@@ -25,7 +26,7 @@ export class Soldier extends PlayerPawn {
     while (this._grid.isPawnAlive(this) && this._grid.isCellFree(to)) {
       this.move(actions, from, to);
 
-      const nextCell: Pawn = this._grid.getCell(to.clone().add(dir));
+      const nextCell: Pawn = this._grid.getCellAt(to.clone().add(dir));
       if (!nextCell || nextCell.faction === Faction.PLAYER) {
         this.enemiesReact(actions, from, to, enemyPawnsHit);
       }
@@ -35,7 +36,7 @@ export class Soldier extends PlayerPawn {
     }
 
     if (this._grid.isPawnAlive(this)) {
-      const nextCell: Pawn = this._grid.getCell(to);
+      const nextCell: Pawn = this._grid.getCellAt(to);
       if (nextCell && nextCell.faction === Faction.ENEMY) {
         this.attack(actions, nextCell);
         enemyPawnsHit.push(nextCell);

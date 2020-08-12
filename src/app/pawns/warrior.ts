@@ -7,6 +7,7 @@ import { WarriorSprite } from "../pawnSprites/warriorSprite";
 export class Warrior extends EnemyPawn {
   public static MAX_LIFE: number = 2;
   public static ATTACK: number = 1;
+  public static TEXTURE: string = "warriorPawn";
 
   public constructor(pos: Phaser.Math.Vector2) {
     super(pos, Warrior.MAX_LIFE, Warrior.ATTACK);
@@ -18,7 +19,7 @@ export class Warrior extends EnemyPawn {
     pawnHit: boolean
   ): Array<Action> {
     const actions: Array<Action> = [];
-    const playerPawn: Pawn = this._grid.getCell(to);
+    const playerPawn: Pawn = this._grid.getCellAt(to);
     if (
       this._grid.isPawnAlive(this) &&
       pawnHit &&

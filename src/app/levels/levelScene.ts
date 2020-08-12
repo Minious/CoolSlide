@@ -11,7 +11,7 @@ import { ActionsPreview } from "../actions/actionsPreview";
 import { AssassinSprite } from "../pawnSprites/assassinSprite";
 import { AbstractLevelScene } from "./abstractLevelScene";
 
-export abstract class LevelScene extends AbstractLevelScene {
+export class LevelScene extends AbstractLevelScene {
   private replayingActions: boolean = false;
   private lastPreviewDir: Phaser.Math.Vector2;
   private actionsPreview: ActionsPreview;
@@ -106,7 +106,7 @@ export abstract class LevelScene extends AbstractLevelScene {
     const newGrid: Grid = this.grid.copy();
 
     const gridPos: Phaser.Math.Vector2 = this.worldPosToGridPos(mousePos);
-    const pawn: Pawn = newGrid.getCell(gridPos);
+    const pawn: Pawn = newGrid.getCellAt(gridPos);
 
     if (pawn && pawn.faction === Faction.PLAYER) {
       const actions: Array<Action> = (pawn as PlayerPawn).action(gridPos, dir);
@@ -119,7 +119,7 @@ export abstract class LevelScene extends AbstractLevelScene {
     const newGrid: Grid = this.grid.copy();
 
     const gridPos: Phaser.Math.Vector2 = this.worldPosToGridPos(mousePos);
-    const pawn: Pawn = newGrid.getCell(gridPos);
+    const pawn: Pawn = newGrid.getCellAt(gridPos);
 
     if (pawn && pawn.faction === Faction.PLAYER) {
       const actions: Array<Action> = (pawn as PlayerPawn).action(gridPos, dir);

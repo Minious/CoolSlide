@@ -1,4 +1,4 @@
 export enum CellType {
-  EMPTY,
-  OBSTACLE,
+  EMPTY = "emptyCell",
+  OBSTACLE = "obstacleCell",
 }

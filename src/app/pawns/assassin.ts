@@ -9,6 +9,7 @@ import { ActionType } from "../actions/actionTypeEnum";
 export class Assassin extends PlayerPawn {
   public static MAX_LIFE: number = 1;
   public static ATTACK: number = 2;
+  public static TEXTURE: string = "assassinPawn";
 
   public constructor(pos: Phaser.Math.Vector2) {
     super(pos, Assassin.MAX_LIFE, Assassin.ATTACK);
@@ -25,14 +26,25 @@ export class Assassin extends PlayerPawn {
     while (this._grid.isPawnAlive(this) && this._grid.isCellFree(to)) {
       this.move(actions, from, to);
 
-      this.enemiesReact(actions, from, to, enemyPawnsHit);
+      const nextCellPos: Phaser.Math.Vector2 = to.clone().add(dir);
+      const nextCell: Pawn = this._grid.getCellAt(nextCellPos);
+      const cellBehindTargetPos: Phaser.Math.Vector2 = nextCellPos
+        .clone()
+        .add(dir);
+      if (
+        !nextCell ||
+        nextCell.faction !== Faction.ENEMY ||
+        !this._grid.isCellFree(cellBehindTargetPos)
+      ) {
+        this.enemiesReact(actions, from, to, enemyPawnsHit);
+      }
 
       from = to;
       to = from.clone().add(dir);
     }
 
     if (this._grid.isPawnAlive(this)) {
-      const nextCell: Pawn = this._grid.getCell(to);
+      const nextCell: Pawn = this._grid.getCellAt(to);
       const cellBehindTargetPos: Phaser.Math.Vector2 = to.clone().add(dir);
       if (
         nextCell &&
